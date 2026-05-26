@@ -5,6 +5,7 @@ import java.nio.file.StandardCopyOption
 import java.util.zip.ZipInputStream
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.ClasspathNormalizer
+import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -50,11 +51,21 @@ val androidSdkManager = projectAndroidSdkDir.resolve(
     },
 )
 val androidSdkInstallMarker = projectAndroidSdkDir.resolve(".install-complete")
+val requiredAndroidSdkPackageDirs = listOf(
+    projectAndroidSdkDir.resolve("platform-tools"),
+    projectAndroidSdkDir.resolve("platforms/android-$projectCompileSdk"),
+    projectAndroidSdkDir.resolve("build-tools/$projectAndroidBuildTools"),
+)
 
 fun writeAndroidLocalProperties() {
     val sdkDirPropertyValue = projectAndroidSdkDir.absolutePath.replace("\\", "/")
     layout.projectDirectory.file("local.properties").asFile.writeText("sdk.dir=$sdkDirPropertyValue\n")
 }
+
+fun isProjectAndroidSdkInstalled(): Boolean =
+    androidSdkInstallMarker.exists() &&
+        androidSdkManager.exists() &&
+        requiredAndroidSdkPackageDirs.all { it.exists() }
 
 fun sdkManagerCommand(vararg args: String): List<String> =
     if (isWindowsHost) {
@@ -114,7 +125,7 @@ fun downloadAndroidCommandLineTools() {
 }
 
 fun installProjectAndroidSdk(execOperations: ExecOperations) {
-    if (androidSdkInstallMarker.exists() && androidSdkManager.exists()) {
+    if (isProjectAndroidSdkInstalled()) {
         writeAndroidLocalProperties()
         println("setup-android-sdk: SDK already installed at $projectAndroidSdkDir")
         return
@@ -199,10 +210,18 @@ kotlin {
         binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
     }
     iosSimulatorArm64 {
-        binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
+        binaries.framework {
+            baseName = "Webbrowser"
+            isStatic = true
+            xcf.add(this)
+        }
     }
     iosX64 {
-        binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
+        binaries.framework {
+            baseName = "Webbrowser"
+            isStatic = true
+            xcf.add(this)
+        }
     }
 
     tvosArm64 {
@@ -342,8 +361,8 @@ rootProject.extensions.configure<YarnRootExtension>("kotlinYarn") {
     resolution("**/minimatch", "10.2.5")
     resolution("picomatch", "4.0.4")
     resolution("**/picomatch", "4.0.4")
-    resolution("qs", "6.15.1")
-    resolution("**/qs", "6.15.1")
+    resolution("qs", "6.15.2")
+    resolution("**/qs", "6.15.2")
     resolution("socket.io-parser", "4.2.6")
     resolution("**/socket.io-parser", "4.2.6")
     resolution("ws", "8.20.1")
@@ -399,6 +418,116 @@ mavenPublishing {
     }
 }
 
+// ---------------------------------------------------------------------------
+// CodeQL Java/Kotlin extraction task
+//
+// .github/workflows/codeql.yml invokes `./gradlew codeqlCompileJvm` to feed
+// commonMain through a standalone multiplatform-aware kotlinc invocation for
+// the CodeQL Java agent.
+val codeqlKotlinc: Configuration by configurations.creating {
+    description = "Kotlin compiler (CodeQL extraction target only - not published)"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+val codeqlSourceClasspath: Configuration by configurations.creating {
+    description = "Runtime classpath for CodeQL extraction of commonMain sources"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+val codeqlAndroidAar: Configuration by configurations.creating {
+    description = "Android AAR artifacts for CodeQL classpath extraction (classes.jar only)"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+dependencies {
+    codeqlKotlinc("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21")
+    codeqlSourceClasspath("org.jetbrains.kotlin:kotlin-stdlib:2.3.21")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
+}
+
+val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
+    description =
+        "Compile commonMain Kotlin sources with kotlinc 2.3.21 for CodeQL Java/Kotlin extraction."
+    group = "verification"
+
+    classpath(codeqlKotlinc)
+    mainClass.set("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
+
+    val outDir = layout.buildDirectory.dir("classes/kotlin/codeql-jvm")
+    val aarExtractDir = layout.buildDirectory.dir("codeql/android-aar")
+    val sources = fileTree("src/commonMain/kotlin") { include("**/*.kt") }
+    val sentinelDir = layout.buildDirectory.dir("generated/codeql-empty-source")
+    inputs.files(sources).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(codeqlSourceClasspath).withNormalizer(ClasspathNormalizer::class.java)
+    inputs.files(codeqlAndroidAar).withNormalizer(ClasspathNormalizer::class.java)
+    outputs.dir(outDir)
+    outputs.dir(aarExtractDir)
+    outputs.dir(sentinelDir)
+    outputs.upToDateWhen { false }
+
+    doFirst {
+        outDir.get().asFile.mkdirs()
+        val extractedJars = mutableListOf<File>()
+        for (aar in codeqlAndroidAar.resolve()) {
+            val extractTarget = aarExtractDir.get().asFile.resolve(aar.nameWithoutExtension)
+            extractTarget.mkdirs()
+            copy {
+                from(zipTree(aar))
+                include("classes.jar")
+                into(extractTarget)
+            }
+            val classesJar = extractTarget.resolve("classes.jar")
+            if (classesJar.exists()) {
+                extractedJars += classesJar
+            }
+        }
+        val fullClasspath =
+            (codeqlSourceClasspath.resolve() + extractedJars)
+                .joinToString(File.pathSeparator) { it.absolutePath }
+        val sourceFiles = sources.files.toMutableList()
+        val commonSourceFiles = sourceFiles.toMutableList()
+        if (sourceFiles.isEmpty()) {
+            val sentinelFile = sentinelDir.get().asFile.resolve(
+                "io/github/kotlinmania/webbrowser/CodeqlEmptySentinel.kt",
+            )
+            sentinelFile.parentFile.mkdirs()
+            sentinelFile.writeText(
+                """
+                // Auto-generated. Present so codeqlCompileJvm has at least
+                // one Kotlin source to feed kotlinc; replaced by real
+                // commonMain content once porting begins.
+                package io.github.kotlinmania.webbrowser
+
+                private object CodeqlEmptySentinel
+                """.trimIndent(),
+            )
+            commonSourceFiles += sentinelFile
+            sourceFiles += sentinelFile
+        }
+        args = listOf(
+            "-d", outDir.get().asFile.absolutePath,
+            "-classpath", fullClasspath,
+            "-jvm-target", "21",
+            "-no-stdlib",
+            "-no-reflect",
+            "-language-version", "2.3",
+            "-api-version", "2.3",
+            "-Xmulti-platform",
+            "-Xcommon-sources=${commonSourceFiles.joinToString(",") { it.absolutePath }}",
+            "-Xexpect-actual-classes",
+            "-opt-in", "kotlin.time.ExperimentalTime",
+            "-opt-in", "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+        ) + sourceFiles.map { it.absolutePath }
+    }
+}
+
 tasks.register("setupAndroidSdk") {
     group = "setup"
     description = "Downloads and configures the project-local Android SDK."
@@ -423,98 +552,6 @@ tasks.register("test") {
     )
 
     dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
-}
-
-val jsYarnLockBuildTasks = listOf(
-    "compileKotlinJs",
-    "compileTestKotlinJs",
-    "jsMainClasses",
-    "jsTestClasses",
-    "jsJar",
-    "jsTest",
-)
-
-jsYarnLockBuildTasks.forEach { taskName ->
-    tasks.named(taskName) {
-        dependsOn("kotlinUpgradeYarnLock")
-    }
-}
-
-val wasmYarnLockBuildTasks = listOf(
-    "compileKotlinWasmJs",
-    "compileTestKotlinWasmJs",
-    "wasmJsMainClasses",
-    "wasmJsTestClasses",
-    "wasmJsJar",
-    "wasmJsTest",
-    "compileKotlinWasmWasi",
-    "compileTestKotlinWasmWasi",
-    "wasmWasiMainClasses",
-    "wasmWasiTestClasses",
-    "wasmWasiJar",
-    "wasmWasiTest",
-)
-
-wasmYarnLockBuildTasks.forEach { taskName ->
-    tasks.named(taskName) {
-        dependsOn("kotlinWasmUpgradeYarnLock")
-    }
-}
-
-val fullTargetBuildTasks = listOf(
-    "compileAndroidMain",
-    "compileAndroidHostTest",
-    "compileAndroidDeviceTest",
-    "assembleAndroidMain",
-    "assembleUnitTest",
-    "assembleAndroidTest",
-    "jvmMainClasses",
-    "jvmTestClasses",
-    "jsMainClasses",
-    "jsTestClasses",
-    "wasmJsMainClasses",
-    "wasmJsTestClasses",
-    "wasmWasiMainClasses",
-    "wasmWasiTestClasses",
-    "androidNativeArm32Binaries",
-    "androidNativeArm32TestBinaries",
-    "androidNativeArm64Binaries",
-    "androidNativeArm64TestBinaries",
-    "androidNativeX64Binaries",
-    "androidNativeX64TestBinaries",
-    "androidNativeX86Binaries",
-    "androidNativeX86TestBinaries",
-    "iosArm64Binaries",
-    "iosArm64TestBinaries",
-    "iosSimulatorArm64Binaries",
-    "iosSimulatorArm64TestBinaries",
-    "iosX64Binaries",
-    "iosX64TestBinaries",
-    "linuxArm64Binaries",
-    "linuxArm64TestBinaries",
-    "linuxX64Binaries",
-    "linuxX64TestBinaries",
-    "macosArm64Binaries",
-    "macosArm64TestBinaries",
-    "mingwX64Binaries",
-    "mingwX64TestBinaries",
-    "tvosArm64Binaries",
-    "tvosArm64TestBinaries",
-    "tvosSimulatorArm64Binaries",
-    "tvosSimulatorArm64TestBinaries",
-    "watchosArm32Binaries",
-    "watchosArm32TestBinaries",
-    "watchosArm64Binaries",
-    "watchosArm64TestBinaries",
-    "watchosDeviceArm64Binaries",
-    "watchosDeviceArm64TestBinaries",
-    "watchosSimulatorArm64Binaries",
-    "watchosSimulatorArm64TestBinaries",
-    "assembleWebbrowserXCFramework",
-)
-
-tasks.named("build") {
-    dependsOn(fullTargetBuildTasks)
 }
 
 // The generated Wasm-WASI Node test runner cannot see the filesystem unless
