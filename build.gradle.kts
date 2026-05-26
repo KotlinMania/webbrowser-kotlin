@@ -231,9 +231,7 @@ kotlin {
         binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
     }
 
-    watchosArm32 {
-        binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
-    }
+
     watchosArm64 {
         binaries.framework { baseName = "Webbrowser"; xcf.add(this) }
     }
@@ -536,10 +534,45 @@ tasks.register("setupAndroidSdk") {
     }
 }
 
+val isMacHost: Boolean by lazy {
+    org.gradle.internal.os.OperatingSystem.current().isMacOsX
+}
+
+val swiftExportSmokeTest = tasks.register("swiftExportSmokeTest") {
+    group = "verification"
+    description = "Builds the Swift Export SPM package and runs swift test against it."
+    onlyIf {
+        if (!isMacHost) logger.lifecycle("swiftExportSmokeTest: skipped (requires macOS)")
+        isMacHost
+    }
+    outputs.upToDateWhen { false }
+    doLast {
+        val execOperations = serviceOf<ExecOperations>()
+        val swiftBuildDir = layout.buildDirectory.dir("swift-test").get().asFile.absolutePath
+        execOperations.exec {
+            workingDir = projectDir
+            commandLine("./gradlew", "embedSwiftExportForXcode",
+                "--no-configuration-cache", "--no-daemon", "--console=plain")
+            environment(mapOf(
+                "BUILT_PRODUCTS_DIR" to swiftBuildDir,
+                "TARGET_BUILD_DIR" to swiftBuildDir,
+                "SDK_NAME" to "macosx", "CONFIGURATION" to "Debug", "ARCHS" to "arm64",
+                "FRAMEWORKS_FOLDER_PATH" to "Frameworks",
+                "MACOSX_DEPLOYMENT_TARGET" to "14.0",
+                "DEPLOYMENT_TARGET_SETTING_NAME" to "MACOSX_DEPLOYMENT_TARGET",
+            ))
+        }.assertNormalExitValue()
+        execOperations.exec {
+            workingDir = layout.projectDirectory.dir("swift-test-harness").asFile
+            commandLine("swift", "test")
+        }.assertNormalExitValue()
+    }
+}
+
 tasks.register("test") {
     group = "verification"
     description =
-        "Runs the host-portable test suite (macOS + JS + WasmJS + Android unit). " +
+        "Runs the host-portable test suite (macOS + JS + WasmJS + Android unit + Swift). " +
         "Non-host native targets (mingwX64, linuxX64) only run on their own host."
 
     val defaultTestTasks = listOf(
@@ -549,6 +582,7 @@ tasks.register("test") {
         "wasmJsNodeTest",
         "compileAndroidMain",
         "assembleUnitTest",
+        "swiftExportSmokeTest",
     )
 
     dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
@@ -586,4 +620,49 @@ val patchWasmWasiNodePreopens = tasks.register("patchWasmWasiNodePreopens") {
 
 tasks.named("wasmWasiNodeTest") {
     dependsOn(patchWasmWasiNodePreopens)
+}
+
+val fullTargetBuildTaskNames = setOf(
+    // Android KMP
+    "compileAndroidMain", "compileAndroidHostTest", "compileAndroidDeviceTest",
+    "assembleAndroidMain", "assembleUnitTest", "assembleAndroidTest",
+    "assembleAndroidDeviceTest", "testAndroidHostTest",
+    // JVM — REQUIRED
+    "jvmMainClasses", "jvmTestClasses",
+    // JS / Wasm
+    "jsMainClasses", "jsTestClasses",
+    "wasmJsMainClasses", "wasmJsTestClasses",
+    "wasmWasiMainClasses", "wasmWasiTestClasses",
+    // Native binaries + test binaries
+    "androidNativeArm32Binaries",    "androidNativeArm32TestBinaries",
+    "androidNativeArm64Binaries",    "androidNativeArm64TestBinaries",
+    "androidNativeX64Binaries",      "androidNativeX64TestBinaries",
+    "androidNativeX86Binaries",      "androidNativeX86TestBinaries",
+    "iosArm64Binaries",              "iosArm64TestBinaries",
+    "iosSimulatorArm64Binaries",     "iosSimulatorArm64TestBinaries",
+    "iosX64Binaries",                "iosX64TestBinaries",
+    "linuxArm64Binaries",            "linuxArm64TestBinaries",
+    "linuxX64Binaries",              "linuxX64TestBinaries",
+    "macosArm64Binaries",            "macosArm64TestBinaries",
+    "mingwX64Binaries",              "mingwX64TestBinaries",
+    "tvosArm64Binaries",             "tvosArm64TestBinaries",
+    "tvosSimulatorArm64Binaries",    "tvosSimulatorArm64TestBinaries",
+    // watchosArm32* RETIRED — do not re-add
+    "watchosArm64Binaries",          "watchosArm64TestBinaries",
+    "watchosDeviceArm64Binaries",    "watchosDeviceArm64TestBinaries",
+    "watchosSimulatorArm64Binaries", "watchosSimulatorArm64TestBinaries",
+    // Swift Export + XCFramework
+    "swiftExportSmokeTest",
+    "assembleWebbrowserXCFramework",
+)
+
+tasks.named("build") { dependsOn(fullTargetBuildTaskNames) }
+
+afterEvaluate {
+    tasks.named("build") {
+        dependsOn(tasks.matching {
+            name.endsWith("MainClasses") || name.endsWith("TestClasses") ||
+                name.endsWith("Binaries") || name.endsWith("XCFramework")
+        })
+    }
 }
