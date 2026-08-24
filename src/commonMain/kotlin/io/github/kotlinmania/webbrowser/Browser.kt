@@ -11,16 +11,22 @@ import kotlin.native.HiddenFromObjC
 enum class Browser {
     /** Operating system's default browser */
     Default,
+
     /** Mozilla Firefox */
     Firefox,
+
     /** Microsoft's Internet Explorer */
     InternetExplorer,
+
     /** Google Chrome */
     Chrome,
+
     /** Opera */
     Opera,
+
     /** macOS Safari */
     Safari,
+
     /** Haiku's WebPositive */
     WebPositive,
     ;
@@ -28,22 +34,24 @@ enum class Browser {
     /**
      * Returns true if this specific browser is detected on the system.
      */
-    fun exists(): Boolean = try {
-        openBrowserWithOptions(this, "https://rootnet.in", BrowserOptions(dryRun = true))
-        true
-    } catch (_: WebBrowserException) {
-        false
-    }
+    fun exists(): Boolean =
+        try {
+            openBrowserWithOptions(this, "https://rootnet.in", BrowserOptions(dryRun = true))
+            true
+        } catch (_: WebBrowserException) {
+            false
+        }
 
-    override fun toString(): String = when (this) {
-        Default -> "Default"
-        Firefox -> "Firefox"
-        InternetExplorer -> "Internet Explorer"
-        Chrome -> "Chrome"
-        Opera -> "Opera"
-        Safari -> "Safari"
-        WebPositive -> "WebPositive"
-    }
+    override fun toString(): String =
+        when (this) {
+            Default -> "Default"
+            Firefox -> "Firefox"
+            InternetExplorer -> "Internet Explorer"
+            Chrome -> "Chrome"
+            Opera -> "Opera"
+            Safari -> "Safari"
+            WebPositive -> "WebPositive"
+        }
 
     companion object {
         /**
@@ -54,8 +62,8 @@ enum class Browser {
         /**
          * Parse a [Browser] from its string representation.
          */
-        fun fromString(value: String): Browser {
-            return when (value.trim().lowercase()) {
+        fun fromString(value: String): Browser =
+            when (value.trim().lowercase()) {
                 "default" -> Default
                 "firefox" -> Firefox
                 "ie", "internet explorer", "internetexplorer" -> InternetExplorer
@@ -65,7 +73,6 @@ enum class Browser {
                 "webpositive" -> WebPositive
                 else -> throw ParseBrowserException("Invalid browser given: '$value'")
             }
-        }
     }
 }
 
@@ -73,4 +80,6 @@ enum class Browser {
  * Error type for parsing a string into a [Browser].
  */
 @HiddenFromObjC
-class ParseBrowserException(message: String) : Exception(message)
+class ParseBrowserException(
+    message: String,
+) : Exception(message)

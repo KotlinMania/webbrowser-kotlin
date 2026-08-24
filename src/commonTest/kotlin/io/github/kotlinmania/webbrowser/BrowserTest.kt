@@ -7,7 +7,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class BrowserTest {
-
     @Test
     fun browserFromString() {
         assertEquals(Browser.Default, Browser.fromString("default"))
@@ -47,11 +46,12 @@ class BrowserTest {
 
     @Test
     fun browserOptionsCustom() {
-        val opts = BrowserOptions(
-            suppressOutput = false,
-            targetHint = "_self",
-            dryRun = true,
-        )
+        val opts =
+            BrowserOptions(
+                suppressOutput = false,
+                targetHint = "_self",
+                dryRun = true,
+            )
         assertEquals(false, opts.suppressOutput)
         assertEquals("_self", opts.targetHint)
         assertEquals(true, opts.dryRun)
