@@ -1,7 +1,9 @@
 // port-lint: source tmp/webbrowser/src/lib.rs
 package io.github.kotlinmania.webbrowser
 
-internal class TargetType(val url: String) {
+internal class TargetType(
+    val url: String,
+) {
     fun isHttp(): Boolean =
         url.startsWith("http://") || url.startsWith("https://")
 
