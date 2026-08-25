@@ -1,4 +1,4 @@
-// port-lint: source tmp/webbrowser/src/windows.rs
+// port-lint: source windows.rs
 // Fallback implementation for MinGW native targets (mingwX64).
 // Full AssocQueryStringW/process execution support requires cinterop
 // with Win32 APIs and is not yet wired.

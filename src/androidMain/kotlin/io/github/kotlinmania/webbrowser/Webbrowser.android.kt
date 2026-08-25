@@ -1,4 +1,4 @@
-// port-lint: source tmp/webbrowser/src/android.rs
+// port-lint: source android.rs
 package io.github.kotlinmania.webbrowser
 
 import android.content.Intent
