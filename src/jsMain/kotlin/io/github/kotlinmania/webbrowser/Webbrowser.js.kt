@@ -1,4 +1,4 @@
-// port-lint: source tmp/webbrowser/src/wasm.rs
+// port-lint: source wasm.rs
 package io.github.kotlinmania.webbrowser
 
 internal actual fun openBrowserInternal(
