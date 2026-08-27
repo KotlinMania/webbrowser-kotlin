@@ -1,4 +1,4 @@
-// port-lint: tests lib.rs
+// port-lint: tests webbrowser/src/lib.rs
 package io.github.kotlinmania.webbrowser
 
 import kotlin.test.Test
