@@ -1,4 +1,4 @@
-// port-lint: source webbrowser/src/lib.rs
+// port-lint: source lib.rs
 package io.github.kotlinmania.webbrowser
 
 fun open(url: String) {
