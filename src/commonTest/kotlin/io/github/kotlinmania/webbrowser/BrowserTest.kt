@@ -16,7 +16,19 @@ class BrowserTest {
         assertEquals(Browser.Opera, Browser.fromString("opera"))
         assertEquals(Browser.InternetExplorer, Browser.fromString("internet explorer"))
         assertEquals(Browser.InternetExplorer, Browser.fromString("ie"))
+        assertEquals(Browser.InternetExplorer, Browser.fromString("internetexplorer"))
         assertEquals(Browser.WebPositive, Browser.fromString("webpositive"))
+    }
+
+    @Test
+    fun browserToString() {
+        assertEquals("Default", Browser.Default.toString())
+        assertEquals("Firefox", Browser.Firefox.toString())
+        assertEquals("Internet Explorer", Browser.InternetExplorer.toString())
+        assertEquals("Chrome", Browser.Chrome.toString())
+        assertEquals("Opera", Browser.Opera.toString())
+        assertEquals("Safari", Browser.Safari.toString())
+        assertEquals("WebPositive", Browser.WebPositive.toString())
     }
 
     @Test
@@ -58,6 +70,19 @@ class BrowserTest {
     }
 
     @Test
+    fun browserOptionsBuilder() {
+        val opts =
+            BrowserOptions
+                .new()
+                .withSuppressOutput(false)
+                .withTargetHint("_top")
+                .withDryRun(true)
+        assertEquals(false, opts.suppressOutput)
+        assertEquals("_top", opts.targetHint)
+        assertEquals(true, opts.dryRun)
+    }
+
+    @Test
     fun targetTypeHttp() {
         val target = TargetType.fromUrl("http://github.com")
         assertTrue(target.isHttp())
@@ -76,6 +101,20 @@ class BrowserTest {
         assertFailsWith<WebBrowserException> {
             target.getHttpUrl()
         }
+    }
+
+    @Test
+    fun targetTypeInvalidUrl() {
+        assertFailsWith<WebBrowserException> {
+            TargetType.fromUrl("//invalid")
+        }
+    }
+
+    @Test
+    fun forEachTokenParsing() {
+        val tokens = mutableListOf<String>()
+        forEachToken("open -a \"Google Chrome\" --args http://github.com") { tokens.add(it) }
+        assertEquals(listOf("open", "-a", "Google Chrome", "--args", "http://github.com"), tokens)
     }
 
     @Test
