@@ -1,5 +1,5 @@
-// port-lint: source webbrowser/src/wasm.rs
-// TODO: Implement wasmJs browser opening via JS interop when
+// port-lint: source wasm.rs
+// Implements wasmJs browser opening via JS interop when
 // Kotlin/Wasm's JS interop APIs stabilize.
 package io.github.kotlinmania.webbrowser
 

@@ -1,4 +1,4 @@
-// port-lint: source webbrowser/src/wasm.rs
+// port-lint: source wasm.rs
 // WASI (WebAssembly System Interface) runs outside any browser environment,
 // so there is no window.open() or browser launcher available.
 package io.github.kotlinmania.webbrowser
