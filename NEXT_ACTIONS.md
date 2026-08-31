@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 8/15 (53.3%)
-- **Function parity:** 18/104 matched (target 43) — 17.3%
+- **Files Present:** 2/15 (13.3%)
+- **Function parity:** 12/106 matched (target 31) — 11.3%
 - **Class/type parity:** 3/14 matched (target 6) — 21.4%
-- **Combined symbol parity:** 21/118 matched (target 49) — 17.8%
-- **Average inline-code cosine:** 0.24 (function body across 3 matched files)
-- **Average documentation cosine:** 0.27 (doc text across 3 matched files)
-- **Cheat-zeroed Files:** 5
-- **Critical Issues:** 8 files with <0.60 function similarity
+- **Combined symbol parity:** 15/120 matched (target 37) — 12.5%
+- **Average inline-code cosine:** 0.46 (function body across 1 matched files)
+- **Average documentation cosine:** 0.82 (doc text across 1 matched files)
+- **Cheat-zeroed Files:** 1
+- **Critical Issues:** 2 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -27,88 +27,19 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. webbrowser.unix
-
-- **Target:** `webbrowser.Webbrowser.linux [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 242510.0
-- **Functions:** 1/24 matched (target 1)
-- **Missing functions:** `open_browser_default`, `try_with_browser_env`, `is_wsl`, `is_flatpak`, `guess_desktop_env`, `try_wsl`, `try_flatpak`, `try_haiku`, `try_xdg`, `open_using_xdg_config`, `get_xdg_dirs`, `is_text_browser`, `for_matching_path`, `get_temp_path`, `test_xdg_open_local_file`, `get_wsl_win_config`, `get_wsl_windows_browser_ps`, `get_wsl_windows_browser_cmd`, `parse_wsl_cmdline`, `wsl_get_filepath_from_url`, `wsl_path_win2lin`, `wsl_path_lin2win`, `get_wsl_distro_name`
-- **Types:** 0/1 matched (target 0)
-- **Missing types:** `WindowsConfig`
-- **Tests:** 0/2 matched
-
-### 2. webbrowser.lib
+### 1. webbrowser.lib
 
 - **Target:** `webbrowser.Browser [STUB]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 152910.0
-- **Functions:** 11/22 matched (target 31)
+- **Functions:** 11/22 matched (target 30)
 - **Missing functions:** `fmt`, `description`, `from_str`, `default`, `from_file_path`, `deref`, `try_from`, `test_open_firefox`, `test_open_chrome`, `test_open_safari`, `test_open_webpositive`
 - **Types:** 3/7 matched (target 6)
 - **Missing types:** `ParseBrowserError`, `Err`, `Target`, `Error`
 - **Tests:** 0/4 matched
 
-### 3. webbrowser.macos
-
-- **Target:** `webbrowser.Webbrowser.macos`
-- **Similarity:** 0.06
-- **Dependents:** 0
-- **Priority Score:** 91009.4
-- **Functions:** 1/6 matched (target 1)
-- **Missing functions:** `create_cf_url`, `from`, `fmt`, `open_non_existing_browser`, `test_existence`
-- **Types:** 0/4 matched (target 0)
-- **Missing types:** `OSStatus`, `LSError`, `LSRolesMask`, `LSLaunchURLSpec`
-- **Tests:** 0/2 matched
-
-### 4. webbrowser.ios
-
-- **Target:** `webbrowser.Webbrowser.ios`
-- **Similarity:** 0.20
-- **Dependents:** 0
-- **Priority Score:** 30408.0
-- **Functions:** 1/3 matched
-- **Missing functions:** `sharedApplication`, `open_url`
-- **Types:** 0/1 matched (target 0)
-- **Missing types:** `FakeBlock`
-- **Lint issues:** 1
-
-### 5. webbrowser.windows
-
-- **Target:** `webbrowser.Webbrowser.mingw [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20310.0
-- **Functions:** 1/3 matched (target 1)
-- **Missing functions:** `ensure_cmd_quotes`, `get_browser_cmd`
-- **Types:** 0/0 matched
-- **Missing types:** _none_
-
-### 6. webbrowser.android
-
-- **Target:** `webbrowser.Webbrowser.android [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20310.0
-- **Functions:** 1/3 matched (target 2)
-- **Missing functions:** `open_browser_default`, `try_for_termux`
-- **Types:** 0/0 matched
-- **Missing types:** _none_
-
-### 7. webbrowser.wasm
-
-- **Target:** `webbrowser.Webbrowser.js [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 10210.0
-- **Functions:** 1/2 matched (target 3)
-- **Missing functions:** `wasm_console_log`
-- **Types:** 0/0 matched
-- **Missing types:** _none_
-
-### 8. webbrowser.common
+### 2. webbrowser.common
 
 - **Target:** `webbrowser.Common`
 - **Similarity:** 0.46
