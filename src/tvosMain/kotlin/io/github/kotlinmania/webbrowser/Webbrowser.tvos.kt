@@ -1,4 +1,4 @@
-// port-lint: source ios.rs
+// port-lint: source webbrowser/src/ios.rs
 package io.github.kotlinmania.webbrowser
 
 @Throws(WebBrowserException::class)

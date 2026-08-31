@@ -4,13 +4,13 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 8/8 (100.0%)
-- **Function parity:** 18/65 matched (target 43) — 27.7%
-- **Class/type parity:** 3/13 matched (target 6) — 23.1%
-- **Combined symbol parity:** 21/78 matched (target 49) — 26.9%
-- **Average inline-code cosine:** 0.25 (function body across 4 matched files)
-- **Average documentation cosine:** 0.34 (doc text across 4 matched files)
-- **Cheat-zeroed Files:** 4
+- **Files Present:** 8/15 (53.3%)
+- **Function parity:** 18/104 matched (target 43) — 17.3%
+- **Class/type parity:** 3/14 matched (target 6) — 21.4%
+- **Combined symbol parity:** 21/118 matched (target 49) — 17.8%
+- **Average inline-code cosine:** 0.24 (function body across 3 matched files)
+- **Average documentation cosine:** 0.27 (doc text across 3 matched files)
+- **Cheat-zeroed Files:** 5
 - **Critical Issues:** 8 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -27,7 +27,7 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. unix
+### 1. webbrowser.unix
 
 - **Target:** `webbrowser.Webbrowser.linux [STUB]`
 - **Similarity:** 0.00
@@ -39,19 +39,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `WindowsConfig`
 - **Tests:** 0/2 matched
 
-### 2. lib
+### 2. webbrowser.lib
 
-- **Target:** `webbrowser.Browser`
-- **Similarity:** 0.29
+- **Target:** `webbrowser.Browser [STUB]`
+- **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 152907.1
+- **Priority Score:** 152910.0
 - **Functions:** 11/22 matched (target 31)
 - **Missing functions:** `fmt`, `description`, `from_str`, `default`, `from_file_path`, `deref`, `try_from`, `test_open_firefox`, `test_open_chrome`, `test_open_safari`, `test_open_webpositive`
 - **Types:** 3/7 matched (target 6)
 - **Missing types:** `ParseBrowserError`, `Err`, `Target`, `Error`
 - **Tests:** 0/4 matched
 
-### 3. macos
+### 3. webbrowser.macos
 
 - **Target:** `webbrowser.Webbrowser.macos`
 - **Similarity:** 0.06
@@ -63,7 +63,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `OSStatus`, `LSError`, `LSRolesMask`, `LSLaunchURLSpec`
 - **Tests:** 0/2 matched
 
-### 4. ios
+### 4. webbrowser.ios
 
 - **Target:** `webbrowser.Webbrowser.ios`
 - **Similarity:** 0.20
@@ -75,7 +75,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `FakeBlock`
 - **Lint issues:** 1
 
-### 5. windows
+### 5. webbrowser.windows
 
 - **Target:** `webbrowser.Webbrowser.mingw [STUB]`
 - **Similarity:** 0.00
@@ -86,7 +86,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 6. android
+### 6. webbrowser.android
 
 - **Target:** `webbrowser.Webbrowser.android [STUB]`
 - **Similarity:** 0.00
@@ -97,7 +97,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 7. wasm
+### 7. webbrowser.wasm
 
 - **Target:** `webbrowser.Webbrowser.js [STUB]`
 - **Similarity:** 0.00
@@ -108,7 +108,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 8. common
+### 8. webbrowser.common
 
 - **Target:** `webbrowser.Common`
 - **Similarity:** 0.46

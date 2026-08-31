@@ -1,4 +1,4 @@
-// port-lint: source lib.rs
+// port-lint: source webbrowser/src/lib.rs
 // JVM implementation using java.awt.Desktop and ProcessBuilder
 package io.github.kotlinmania.webbrowser
 
