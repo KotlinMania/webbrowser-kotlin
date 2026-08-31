@@ -1,4 +1,4 @@
-// port-lint: source unix.rs
+// port-lint: source webbrowser/src/unix.rs
 // Fallback implementation for Linux native targets (linuxX64, linuxArm64).
 // Full xdg-open/BROWSER env/DE detection support requires cinterop with
 // POSIX process execution APIs and is not yet wired.
