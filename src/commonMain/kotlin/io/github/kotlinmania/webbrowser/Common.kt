@@ -1,4 +1,4 @@
-// port-lint: source webbrowser/src/common.rs
+// port-lint: source common.rs
 package io.github.kotlinmania.webbrowser
 
 /**
