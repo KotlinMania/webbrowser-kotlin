@@ -1,4 +1,4 @@
-// port-lint: source webbrowser/src/macos.rs
+// port-lint: source macos.rs
 package io.github.kotlinmania.webbrowser
 
 import platform.AppKit.NSWorkspace
