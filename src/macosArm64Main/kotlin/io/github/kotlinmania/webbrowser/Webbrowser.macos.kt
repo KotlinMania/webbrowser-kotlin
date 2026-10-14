@@ -10,29 +10,22 @@ internal actual fun openBrowserInternal(
     target: TargetType,
     options: BrowserOptions,
 ) {
-    if (options.dryRun) {
-        return
-    }
-
-    val urlStr = target.url
-    val nsUrl = NSURL.URLWithString(urlStr) ?: throw WebBrowserException("failed to create NSURL")
+    val nsUrl = NSURL.URLWithString(target.url) ?: throw WebBrowserException("failed to create NSURL")
 
     when (browser) {
-        Browser.Default -> {
+        Browser.Default,
+        Browser.Safari,
+        Browser.Firefox,
+        Browser.Chrome,
+        Browser.Opera,
+        -> {
+            if (options.dryRun) return
             NSWorkspace.sharedWorkspace.openURL(nsUrl)
         }
-        Browser.Safari -> {
-            NSWorkspace.sharedWorkspace.openURL(nsUrl)
+        Browser.InternetExplorer,
+        Browser.WebPositive,
+        -> {
+            throw WebBrowserException("browser not supported on macOS: $browser")
         }
-        Browser.Firefox -> {
-            NSWorkspace.sharedWorkspace.openURL(nsUrl)
-        }
-        Browser.Chrome -> {
-            NSWorkspace.sharedWorkspace.openURL(nsUrl)
-        }
-        Browser.Opera -> {
-            NSWorkspace.sharedWorkspace.openURL(nsUrl)
-        }
-        else -> throw WebBrowserException("browser not supported on macOS: $browser")
     }
 }

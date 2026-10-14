@@ -131,4 +131,9 @@ class BrowserTest {
     fun openBrowserDryRun() {
         openBrowserWithOptions(Browser.Safari, "http://github.com", BrowserOptions(dryRun = true))
     }
+
+    @Test
+    fun testExistenceDefault() {
+        assertTrue(Browser.isAvailable(), "should have found a browser")
+    }
 }
