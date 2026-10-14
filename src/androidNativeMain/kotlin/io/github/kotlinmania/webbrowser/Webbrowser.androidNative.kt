@@ -1,6 +1,6 @@
 // port-lint: source android.rs
 // Fallback implementation for Android Native NDK targets.
-// Full JNI-based browser opening via ndk_context-equivalent is not yet wired.
+// Full JNI-based browser opening via NDK context equivalent is not yet wired.
 package io.github.kotlinmania.webbrowser
 
 @Throws(WebBrowserException::class)
