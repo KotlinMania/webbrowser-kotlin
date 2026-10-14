@@ -13,7 +13,7 @@ internal actual fun openBrowserInternal(
         // we still return success to keep consistent behaviour with
         // other platforms where the dry-run check is a no-op.
         // The upstream WASM implementation throws on missing window,
-        // but those tests are #[ignore]'d and only run in a browser.
+        // but those tests are ignored and only run in a browser.
         return
     }
 
