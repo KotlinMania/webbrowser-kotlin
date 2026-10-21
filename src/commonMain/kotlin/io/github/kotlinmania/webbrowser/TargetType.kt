@@ -1,4 +1,3 @@
-// port-lint: source lib.rs
 package io.github.kotlinmania.webbrowser
 
 internal class TargetType(

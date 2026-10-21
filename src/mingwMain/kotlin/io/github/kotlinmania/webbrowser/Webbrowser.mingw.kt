@@ -1,7 +1,4 @@
 // port-lint: source windows.rs
-// Fallback implementation for MinGW native targets (mingwX64).
-// Full AssocQueryStringW/process execution support requires cinterop
-// with Win32 APIs and is not yet wired.
 package io.github.kotlinmania.webbrowser
 
 @Throws(WebBrowserException::class)
@@ -10,9 +7,18 @@ internal actual fun openBrowserInternal(
     target: TargetType,
     options: BrowserOptions,
 ) {
-    if (options.dryRun) return
-    throw WebBrowserException(
-        "browser opening not yet implemented for MinGW native; " +
-            "use JVM target for Desktop.browse support",
-    )
+    when (browser) {
+        Browser.Default,
+        Browser.InternetExplorer,
+        -> {
+            if (options.dryRun) return
+            throw WebBrowserException(
+                "browser opening not yet implemented for MinGW native; " +
+                    "use JVM target for Desktop.browse support",
+            )
+        }
+        else -> {
+            throw WebBrowserException("only default and Internet Explorer are supported on Windows: $browser")
+        }
+    }
 }
