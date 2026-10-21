@@ -12,20 +12,15 @@ internal actual fun openBrowserInternal(
 ) {
     val url = target.getHttpUrl()
 
-    if (options.dryRun) {
-        return
-    }
-
     when (browser) {
         Browser.Default -> {
+            if (options.dryRun) {
+                return
+            }
             val intent =
                 Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-            // In a library context, startActivity requires the caller to provide
-            // a Context. Using the application context via a static reference
-            // would need initialization; for now we rely on the caller having
-            // the NEW_TASK flag set and a task stack available.
             @Suppress("DEPRECATION")
             android.app.Activity().startActivity(intent)
         }

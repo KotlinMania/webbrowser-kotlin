@@ -4,7 +4,7 @@ package io.github.kotlinmania.webbrowser
 /**
  * Parses [line] to find tokens (including quoted strings), and invokes [op] on each token.
  */
-public fun forEachToken(
+internal fun forEachToken(
     line: String,
     op: (String) -> Unit,
 ) {

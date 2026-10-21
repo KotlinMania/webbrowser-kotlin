@@ -1,5 +1,3 @@
-// port-lint: source lib.rs
-// JVM implementation using java.awt.Desktop and ProcessBuilder
 package io.github.kotlinmania.webbrowser
 
 import java.awt.Desktop
@@ -12,21 +10,57 @@ internal actual fun openBrowserInternal(
     options: BrowserOptions,
 ) {
     val urlStr = target.url
-
-    if (options.dryRun) {
-        return
-    }
+    val osName = System.getProperty("os.name")?.lowercase() ?: ""
+    val isMac = osName.contains("mac")
+    val isWindows = osName.contains("win")
 
     when (browser) {
         Browser.Default -> {
+            if (options.dryRun) return
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(URI(urlStr))
             } else {
                 throw WebBrowserException("Desktop browse not supported")
             }
         }
-        else -> {
-            // For specific browsers on JVM, try Desktop.browse as fallback
+        Browser.Safari -> {
+            if (!isMac) {
+                throw WebBrowserException("Safari is only supported on macOS")
+            }
+            if (options.dryRun) return
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI(urlStr))
+            } else {
+                throw WebBrowserException("Desktop browse not supported")
+            }
+        }
+        Browser.InternetExplorer -> {
+            if (!isWindows) {
+                throw WebBrowserException("Internet Explorer is only supported on Windows")
+            }
+            if (options.dryRun) return
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI(urlStr))
+            } else {
+                throw WebBrowserException("Desktop browse not supported")
+            }
+        }
+        Browser.WebPositive -> {
+            if (!osName.contains("haiku")) {
+                throw WebBrowserException("WebPositive is only supported on Haiku")
+            }
+            if (options.dryRun) return
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI(urlStr))
+            } else {
+                throw WebBrowserException("Desktop browse not supported")
+            }
+        }
+        Browser.Firefox,
+        Browser.Chrome,
+        Browser.Opera,
+        -> {
+            if (options.dryRun) return
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(URI(urlStr))
             } else {

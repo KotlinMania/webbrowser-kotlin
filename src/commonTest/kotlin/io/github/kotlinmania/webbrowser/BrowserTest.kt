@@ -1,4 +1,3 @@
-// port-lint: tests lib.rs
 package io.github.kotlinmania.webbrowser
 
 import kotlin.test.Test
@@ -129,7 +128,7 @@ class BrowserTest {
 
     @Test
     fun openBrowserDryRun() {
-        openBrowserWithOptions(Browser.Safari, "http://github.com", BrowserOptions(dryRun = true))
+        openBrowserWithOptions(Browser.Default, "http://github.com", BrowserOptions(dryRun = true))
     }
 
     @Test

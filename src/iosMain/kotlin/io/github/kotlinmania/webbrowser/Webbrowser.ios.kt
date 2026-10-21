@@ -12,11 +12,15 @@ internal actual fun openBrowserInternal(
 ) {
     val url = target.getHttpUrl()
 
-    if (options.dryRun) {
-        return
+    when (browser) {
+        Browser.Default -> {
+            if (options.dryRun) {
+                return
+            }
+            val nsUrl = NSURL.URLWithString(url) ?: throw WebBrowserException("failed to create NSURL")
+            val app = UIApplication.sharedApplication
+            app.openURL(nsUrl)
+        }
+        else -> throw WebBrowserException("only default browser supported on iOS")
     }
-
-    val nsUrl = NSURL.URLWithString(url) ?: throw WebBrowserException("failed to create NSURL")
-    val app = UIApplication.sharedApplication
-    app.openURL(nsUrl)
 }

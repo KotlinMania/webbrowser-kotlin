@@ -1,9 +1,4 @@
-// port-lint: source lib.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package io.github.kotlinmania.webbrowser
-
-import kotlin.native.HiddenFromObjC
 
 /**
  * Browser types available on the platform.
@@ -79,7 +74,6 @@ enum class Browser {
 /**
  * Error type for parsing a string into a [Browser].
  */
-@HiddenFromObjC
-class ParseBrowserException(
+internal class ParseBrowserException(
     message: String,
 ) : Exception(message)
