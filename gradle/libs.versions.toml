@@ -13,6 +13,8 @@ log = "0.1.4"
 serialTest = "0.1.0"
 urlencoding = "0.1.1"
 
+androidxTestRunner = "1.7.0"
+
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidKmp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -34,6 +36,8 @@ kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-
 log-kotlin = { module = "io.github.kotlinmania:log-kotlin", version.ref = "log" }
 serial-test-kotlin = { module = "io.github.kotlinmania:serial-test-kotlin", version.ref = "serialTest" }
 urlencoding-kotlin = { module = "io.github.kotlinmania:urlencoding-kotlin", version.ref = "urlencoding" }
+
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 
 [bundles]
 webbrowser-commonMain = [
