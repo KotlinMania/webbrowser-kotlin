@@ -46,3 +46,7 @@ webbrowser-commonMain = [
   "collections-immutable",
   "log-kotlin",
 ]
+webbrowser-commonTest = [
+  "serial-test-kotlin",
+  "urlencoding-kotlin",
+]

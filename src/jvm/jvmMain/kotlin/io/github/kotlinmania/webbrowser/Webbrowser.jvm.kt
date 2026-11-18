@@ -10,7 +10,7 @@ internal actual fun openBrowserInternal(
     options: BrowserOptions,
 ) {
     val urlStr = target.url
-    val osName = System.getProperty("os.name")?.lowercase() ?: ""
+    val osName = System.getProperty("os.name")?.lowercase().orEmpty()
     val isMac = osName.contains("mac")
     val isWindows = osName.contains("win")
 
